@@ -1,0 +1,20 @@
+/* user-msg */
+.user-msg{
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    padding: 10px;
+}
+
+.success {
+    background-color: lightgreen;
+}
+
+.error {
+    background-color: rgba(197, 39, 39, 0.911);
+    color: white;
+}
+
+.router-link-exact-active {
+    color: #9bdaffe5;
+}
