@@ -462,12 +462,15 @@ function remove(bookId) {
 }
 function getBookById(bookId) {
     return storageService.get(BOOKS_KEY, bookId)
+    .then( book => {
+            return _setNextPrevBookId(book)
+    })
 }
 
 function save(book) {
     return storageService.post(BOOKS_KEY, book)
 }
-function getEmpty(book) {
+function getEmpty() {
     return {
         id: '',
         title: '',
@@ -480,24 +483,12 @@ function getEmpty(book) {
         thumbnail: '',
         language: '',
         listPrice: {
-            amount: 0,
-            currencyCode: '',
+            amount: utilService.getRandomInt(0,100),
+            currencyCode: 'USD',
             isOnSale: false
         }
     }
 }
-
-// function addReview(bookId, review){
-//     return getBookById(bookId).then(book => {
-//         review.id = utilService.makeId()
-//         if(!Array.isArray(book.reviews)){
-//             book.reviews = []
-//             book.reviews.push(review)
-//         } else book.reviews.push(review)
-//         storageService.put(BOOKS_KEY, book)
-//         return Promise.resolve(book)
-//     })
-// }
 
 function addReview(bookId, review) {
     return getBookById(bookId).then(book => {
@@ -511,20 +502,44 @@ function addReview(bookId, review) {
     })
 }
 
-// function getReviewById(bookId, reviewId) {
-//     return storageService.get(bookId[reviews], reviewId)
-// }
-
 function removeReview(bookId, reviewId) {
     return getBookById(bookId)
     .then(book=>{
         book.reviews = book.reviews.filter(review=> review.id !== reviewId)
         storageService.put(BOOKS_KEY, book)
-        // console.log(book);
         return Promise.resolve(book)
     })
 }
 
+function searchGoogleBooks(searchVal){
+    return axios.get(`https://www.googleapis.com/books/v1/volumes?printType=books&q=${searchVal}`)
+    .then(res => res.data.items)
+}
+
+function addGoogleBook(googleBook){
+    const gb  = googleBook.volumeInfo
+    let newBook = getEmpty()
+    newBook.title = gb.title
+    newBook.subtitle = gb.subtitle
+    newBook.authors = [...gb.authors]
+    newBook.publishedDate = +(gb.publishedDate.substr(0,4))
+    newBook.description = gb.description
+    newBook.pageCount = gb.pageCount
+    newBook.categories = [...gb.categories]
+    newBook.thumbnail = gb.imageLinks.thumbnail
+    newBook.language = gb.language
+    storageService.post(BOOKS_KEY,newBook)
+    return Promise.resolve(newBook)
+}
+
+function _setNextPrevBookId(book) {
+    return storageService.query(BOOKS_KEY).then(books => {
+        const bookIdx = books.findIndex(currBook => currBook.id === book.id)
+        book.nextBookId = (books[bookIdx+1])? books[bookIdx+1].id : books[0].id
+        book.prevBookId = (books[bookIdx-1])? books[bookIdx-1].id : books[books.length-1].id
+        return book
+    })
+}
 
 export const bookService = {
     query,
@@ -532,8 +547,9 @@ export const bookService = {
     save,
     getBookById,
     addReview,
-    // getReviewById,
     removeReview,
+    searchGoogleBooks,
+    addGoogleBook,
 }
 
 

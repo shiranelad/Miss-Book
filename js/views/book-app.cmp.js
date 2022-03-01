@@ -2,14 +2,14 @@ import { bookService } from '../services/book-service.js'
 import bookFilter from '../cmps/book-filter.cmp.js'
 import bookList from '../cmps/book-list.cmp.js'
 import bookDetails from '../views/book-details.cmp.js'
+import bookSearch from '../cmps/book-search.cmp.js'
+import { showSuccessMsg , showErrorMsg} from '../services/eventBus-service.js'
 
 export default {
-    // props: [""],
     template: `
         <section class="main-layout">
-            <!-- <h1>Miss Book</h1> -->
+            <book-search @addedBook="addBook" />
             <book-filter @filtered="setFilter" ></book-filter>
-            <!-- <p>{{displayMsg}}</p> -->
             <book-list :books="booksToShow" @remove="removeBook" @selected="selectBook"></book-list>
             <book-details :book="selectedBook" v-if="selectedBook"></book-details>
         </section>
@@ -19,6 +19,7 @@ export default {
         bookFilter,
         bookList,
         bookDetails,
+        bookSearch,
     },
     data() {
         return {
@@ -26,10 +27,9 @@ export default {
             filterBy: {
                 title: '',
                 fromPrice: 0,
-                toPrice: 2000,
+                toPrice: 200,
             },
             selectedBook: null,
-            booksFound: -1,
         }
     },
     created() {
@@ -50,7 +50,25 @@ export default {
                     const idx = this.books.findIndex(book => book.id === id)
                     this.books.splice(idx, 1)
                 })
-        }
+        },
+        addBook(book){
+            if(this.books.find(b => b.title === book.volumeInfo.title)) {
+                showErrorMsg('Book already in collection')
+                return
+            }
+            bookService.addGoogleBook(book)
+            .then(books => this.books = books)
+            .then(() => {
+                showSuccessMsg('Book Added succesfully');
+            })
+            .catch(err => {
+                console.error(err);
+                showErrorMsg('Error - please try again later')
+            });
+            bookService.query()
+            .then(books => this.books = books);
+              }
+
     },
     computed: {
         booksToShow() {
@@ -58,21 +76,9 @@ export default {
             if (!this.filterBy) return this.books;
             const regex = new RegExp(this.filterBy.title, 'i');
             const min = this.filterBy.fromPrice || 0;
-            const max = this.filterBy.toPrice || 2000;
+            const max = this.filterBy.toPrice || 200;
             return this.books.filter(book => regex.test(book.title) && (min <= book.listPrice.amount) && max >= book.listPrice.amount)
         },
-        // displayMsg() {
-        //     if(this.booksFound === -1) {
-        //         this.booksFound = this.books.length
-        //         return `${this.booksFound} books found`
-        //     }
-        //     if (!this.books || !this.books.length) return;
-        //     this.booksFound = this.books.length
-        //     if (this.booksFound === 0)
-        //         if (this.booksFound > 1) return `${this.booksFound} books found`
-        //         else if (this.booksFound === 1) return `1 book found`
-        //     if (this.booksFound <= 0 || !this.books || !this.books.length) return 'No books found'
-        // }
     },
 
     unmounted() { },

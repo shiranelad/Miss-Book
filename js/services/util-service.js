@@ -3,6 +3,7 @@ export const utilService = {
     loadFromStorage,
     makeId,
     getCurrencySymbol,
+    getRandomInt,
 }
 
 function saveToStorage(key, value) {
@@ -26,4 +27,10 @@ function makeId(length = 8) {
 function getCurrencySymbol(currCode) {
     const currencies = { ILS: '₪', USD: '$', EUR: '€' }
     return currencies[currCode]
+}
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }

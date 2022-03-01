@@ -1,6 +1,45 @@
 import { eventBus } from '../services/eventBus-service.js'
 
+export const aboutLeadership = {
+    template: `<section>
+        <h2>Leadership</h2>
+        <ul>
+            <li>
+                <h2>Minnie Mouse, CEO</h2>
+                <img class="ls-img" src="img/leadership/minnie.png" alt="">
+            </li>
+            <li>
+                <h2>Mickey Mouse, CFO</h2>
+                <img class="ls-img" src="img/leadership/mickey.png" alt="">
+            </li>
+            <li>
+                <h2>Donald Duck, VP HR</h2>
+                <img class="ls-img" src="img/leadership/donald.png" alt="">
+            </li>
+            <li>
+                <h2>Goofy, VP Happiness</h2>
+                <img class="ls-img" src="img/leadership/goofy.png" alt="">
+            </li>
+        </ul>
+    </section>`
+}
+
+export const aboutCareers = {
+    template: `<section>
+        <h2>Careers</h2>
+        <ul>
+            <li>VP Book Product</li>
+            <li>Warehouseman</li>
+            <li>Gift Wrapper</li>
+            <li>Book Editor</li>
+        </ul>
+    </section>`
+}
+
+
+
 export default {
+    // name: 'about-page',
     template:`
         <section class="about-page app-main main-layout">
         <h1>About</h1>
@@ -11,13 +50,16 @@ export default {
             Aliquid, cum nam doloribus quibusdam, nostrum perferendis eos sit maiores rem veritatis consectetur ab aut? Numquam quia asperiores nesciunt, aperiam adipisci fuga blanditiis ea ut nisi cumque dolore voluptates quas?
             </p>
             <img src="img/books.png" alt="">
-<!-- 
-            <h3>This is an about page</h3>
-            <button @click="callBus">Call the bus</button> -->
+            <nav>
+                <router-link to="/about/leadership">Leadership</router-link> |
+                <router-link to="/about/careers">Careers</router-link>
+            </nav>
+            <router-view></router-view>
+
         </section>
     `,
     created(){
-        // var aboutInt = setInterval(() => console.log('Created...'), 1000)
+
 
     },
     methods:{

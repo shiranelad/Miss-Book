@@ -5,10 +5,7 @@ import longText from '../cmps/long-text.cmp.js'
 import reviewAdd from '../cmps/review-add.cmp.js'
 import bookReviews from '../cmps/book-reviews.cmp.js'
 
-
-
 export default {
-    // props: ['book'],
     template: `
         <section v-if="book" class="book-details main-layout app-main">
             <!-- <h3 class="details-header">Details</h3> -->
@@ -32,6 +29,8 @@ export default {
             <p><u>Language</u>: {{book.language}}</p>
             <p><u>Price</u>: <span :class="color">{{getCurrSymbol(book.listPrice['currencyCode'])}} {{book.listPrice.amount}}</span></p>
             <div class="reading">{{checkReadingLength}}</div>
+            <router-link :to="'/book/'+book.prevBookId">Prev Book</router-link> | 
+            <router-link :to="'/book/'+book.nextBookId">Next Book</router-link> | 
             <hr />
             <button v-if="!addReview" @click="addReview = !addReview">Add a Review</button>
             <review-add v-if="addReview" @closed="toggleAddReview" @newReview="saveReview"></review-add>
@@ -44,18 +43,17 @@ export default {
         bookReviews
     },
     created() {
-        const id = this.$route.params.bookId;
-        bookService.getBookById(id)
-            .then(book => {
-                // console.log(book);
-                this.book = book
-                this.longTextStr = this.book.description.length > 100
-            });
+        // const id = this.$route.params.bookId;
+        // bookService.getBookById(id)
+        //     .then(book => {
+        //         this.book = book
+        //         this.longTextStr = this.book.description.length > 100
+        //     });
     },
 
     data() {
         return {
-            longTextStr: null, //this.book.description.length > 100,
+            longTextStr: null, 
             isShown: false,
             book: null,
             addReview: false,
@@ -82,10 +80,19 @@ export default {
         },
         bookUpdated(book){
             this.book = book
+        },
+        loadBook() {
+            bookService.getBookById(this.bookId)
+            .then(book => this.book = book);
         }
-
     },
     computed: {
+
+        bookId() {
+            return this.$route.params.bookId
+        },
+
+
         addSeperator() {
             if (this.book.authors.length > 1) return ', '
             else return ''
@@ -112,6 +119,15 @@ export default {
         }
 
     },
+    watch : {
+        bookId : {
+            handler(){
+                this.loadBook()
+            },
+            immediate : true
+        }
+    },
+
     unmounted() {
 
     },
